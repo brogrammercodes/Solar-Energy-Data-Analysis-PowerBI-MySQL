@@ -1,0 +1,57 @@
+// =====================================================================
+// Solar Energy Report  |  DAX Measures
+// Create a measures table (Home > Enter Data > "Measures") or add these
+// to the solar_energy table. Paste each block as a New Measure.
+// Table referenced below is named 'solar_energy'.
+// =====================================================================
+
+// ---------- KPI cards ----------
+Total Cities = DISTINCTCOUNT ( solar_energy[city] )
+
+Total Countries = DISTINCTCOUNT ( solar_energy[country] )
+
+Total Installations = SUM ( solar_energy[solar_installations_count] )
+
+Avg Viability Score = ROUND ( AVERAGE ( solar_energy[solar_viability_score] ), 1 )
+
+Avg ROI % = ROUND ( AVERAGE ( solar_energy[roi_percentage] ), 1 )
+
+Avg Payback (Years) = ROUND ( AVERAGE ( solar_energy[payback_period_years] ), 1 )
+
+Total CO2 Avoided (Tons) = ROUND ( SUM ( solar_energy[co2_reduction_tons_per_year] ), 1 )
+
+Avg GHI = ROUND ( AVERAGE ( solar_energy[ghi_kwh_per_m2] ), 2 )
+
+// ---------- Rankings / context ----------
+Best City Viability = MAX ( solar_energy[solar_viability_score] )
+
+Best City =
+CALCULATE (
+    FIRSTNONBLANK ( solar_energy[city], 1 ),
+    TOPN ( 1, ALL ( solar_energy ), solar_energy[solar_viability_score], DESC )
+)
+
+City Viability Rank =
+RANKX ( ALL ( solar_energy[city] ), [Avg Viability Score], , DESC, Dense )
+
+// ---------- Segmentation (use as a calculated COLUMN, not a measure) ----------
+// Add this as a New Column on solar_energy for the donut / tier slicer:
+// Viability Tier =
+//     SWITCH (
+//         TRUE (),
+//         solar_energy[solar_viability_score] >= 65, "A - Excellent",
+//         solar_energy[solar_viability_score] >= 55, "B - Strong",
+//         solar_energy[solar_viability_score] >= 45, "C - Moderate",
+//         "D - Weak"
+//     )
+
+// ---------- Conditional formatting helper ----------
+// Drives the green->amber->red colour scale on the viability table.
+Viability Colour =
+SWITCH (
+    TRUE (),
+    [Avg Viability Score] >= 65, "#F4A300",   // gold  - excellent
+    [Avg Viability Score] >= 55, "#1F3A93",   // navy  - strong
+    [Avg Viability Score] >= 45, "#6D71BE",   // brand - moderate
+    "#9AA0A6"                                  // grey  - weak
+)

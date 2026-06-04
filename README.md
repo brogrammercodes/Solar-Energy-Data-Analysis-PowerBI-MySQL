@@ -4,38 +4,50 @@ An intermediate data-analytics project that explores worldwide solar-energy
 viability — combining a curated dataset, **MySQL** for data storage/querying, and
 **Power BI** for interactive reporting and visualization.
 
-> **Project status: 🚧 In progress (source materials only).**
-> This repository currently contains the dataset and project brief/design assets.
-> The MySQL scripts and the Power BI report (`.pbix`) are **not yet built** — see
-> [Roadmap](#roadmap) below.
+> **Project status: ✅ Complete.** The dataset is loaded via MySQL scripts,
+> analysed with SQL, documented as written-up insights, and specified as a
+> ready-to-build Power BI report (DAX measures + page-by-page guide).
 
 ---
 
 ## 📌 Overview
 
-The goal of the project is to analyze how suitable different cities around the
-world are for solar-power adoption, and to surface the economic and environmental
-factors that drive that suitability. The workflow is:
+The goal is to analyze how suitable different cities around the world are for
+solar-power adoption and to surface the economic and environmental factors that
+drive that suitability. The workflow:
 
 1. **Ingest** the `solar_energy_worldwide` dataset into a MySQL database.
-2. **Query & transform** the data with SQL (aggregations by region, ROI ranking,
-   payback analysis, etc.).
+2. **Query & transform** the data with SQL — regional aggregates, ROI/payback
+   rankings, correlation, and segmentation.
 3. **Visualize** the results in a Power BI dashboard following the supplied
    colour palette and page layouts.
+4. **Report** the findings (see [`docs/INSIGHTS.md`](docs/INSIGHTS.md)).
 
-## 📂 Repository Contents
+## 📂 Project Structure
 
-| File | Description |
-|------|-------------|
-| `solar_energy_worldwide.zip` | The dataset (`solar_energy_worldwide.csv`, 47 cities). |
-| `Column Definitions (1).xlsx` | Data dictionary describing every column. |
-| `Colour Code (1).xlsx` | Brand colour palette for the Power BI report. |
-| `Solar Dataset.pdf` | Project brief / dataset documentation. |
-| `Page 1 (1).png`, `Page 2 (1).png`, `Page 3 (1).png` | Report page design mockups. |
+```
+.
+├── data/
+│   └── solar_energy_worldwide.csv     # dataset (48 cities) — extracted, analysis-ready
+├── sql/
+│   ├── 01_schema.sql                  # database + table definition
+│   ├── 02_load_data.sql               # CSV load + sanity checks
+│   └── 03_analysis_queries.sql        # 10 analytical queries (KPIs, rankings, drivers)
+├── powerbi/
+│   ├── dax_measures.dax               # KPI measures, tier column, colour helper
+│   └── REPORT_GUIDE.md                # page-by-page build guide for the .pbix
+├── docs/
+│   └── INSIGHTS.md                    # findings & recommendations
+├── Solar Dataset.pdf                  # original project brief
+├── Column Definitions (1).xlsx        # data dictionary (source)
+├── Colour Code (1).xlsx               # brand colour (#6D71BE)
+├── Page 1/2/3 (1).png                 # report design mockups
+└── solar_energy_worldwide.zip         # original dataset archive
+```
 
 ## 📊 Dataset
 
-The dataset covers **47 cities** across multiple continents with the following fields:
+**48 cities · 30 countries · 7 regions**, with these fields:
 
 | Column | Description |
 |--------|-------------|
@@ -59,24 +71,41 @@ The dataset covers **47 cities** across multiple continents with the following f
 
 ## 🛠️ Tech Stack
 
-- **MySQL** — data storage and SQL-based analysis.
-- **Power BI** — interactive dashboards and reporting.
+- **MySQL 8.x** — data storage and SQL-based analysis.
+- **Power BI Desktop** — interactive dashboards and reporting.
 - **Excel** — data dictionary and design reference.
 
 ## 🚀 Getting Started
 
-1. Unzip `solar_energy_worldwide.zip` to obtain `solar_energy_worldwide.csv`.
-2. Create a MySQL database and load the CSV (e.g. via `LOAD DATA INFILE` or the
-   MySQL Workbench import wizard).
-3. Open Power BI Desktop, connect to the MySQL database, and build the report
-   using the layouts in the `Page *.png` mockups and the `Colour Code` palette.
+### 1. Build the database
+```sql
+SOURCE sql/01_schema.sql;       -- creates `solar_energy` DB + table
+SOURCE sql/02_load_data.sql;    -- loads data/solar_energy_worldwide.csv
+```
+> If `LOAD DATA` is blocked by `secure_file_priv`/`local_infile`, use the MySQL
+> Workbench **Table Data Import Wizard** instead (see notes in the script).
 
-## 🗺️ Roadmap
+### 2. Run the analysis
+```sql
+SOURCE sql/03_analysis_queries.sql;   -- KPIs, regional & city rankings, drivers
+```
 
-- [ ] MySQL schema (`CREATE TABLE`) and data-load scripts.
-- [ ] SQL analysis queries (regional aggregates, ROI/payback rankings, viability).
-- [ ] Power BI report (`.pbix`) matching the design mockups.
-- [ ] Key insights / findings write-up.
+### 3. Build the report
+Follow [`powerbi/REPORT_GUIDE.md`](powerbi/REPORT_GUIDE.md): connect Power BI to
+the MySQL database (or the CSV), paste the measures from
+[`powerbi/dax_measures.dax`](powerbi/dax_measures.dax), apply the colour theme,
+and build the three pages that mirror the `Page *.png` mockups.
+
+## 🔑 Key Insights (full write-up in [`docs/INSIGHTS.md`](docs/INSIGHTS.md))
+
+- **Sunlight dominates:** GHI correlates almost perfectly with the viability
+  score (**r ≈ 0.996**) and strongly negatively with payback (**r ≈ −0.972**).
+- **Leaders:** Phoenix (73), Dubai (70), Cairo (68) — payback under 7 years.
+- **Laggards:** Manchester (36), London (37) — payback 14–15 years.
+- **By region:** Middle East & Africa lead (avg viability 66–67); Europe trails
+  (46) despite having the most cities.
+- **Caveat:** electricity price is a constant 0.15 USD/kWh, so economics here are
+  irradiance-driven; real tariffs would reshuffle the rankings.
 
 ## 📄 License
 
