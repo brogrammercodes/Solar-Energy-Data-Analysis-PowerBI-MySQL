@@ -1,0 +1,22 @@
+# OS / editor cruft
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*~
+
+# Temp extraction folders
+_tmp_extract/
+_xlsx1/
+_xlsx2/
+
+# Power BI temp/cache
+*.pbix.tmp
+*~$*
+
+# Python / notebooks (if used for prep)
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
